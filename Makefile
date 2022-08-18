@@ -1,5 +1,5 @@
-IMAGE = kei2100/ridgepole
-DOCKER_USERNAME = kei2100
+IMAGE = nakakoh/ridgepole
+DOCKER_USERNAME = nakakoh
 DOCKER_BUILDX = docker buildx
 DOCKER_BUILDX_INSTANCE = ridgepole
 DOCKER_BUILDX_PLATFORM = linux/arm64,linux/amd64
@@ -14,7 +14,7 @@ docker.push: docker.build
 	docker push $(IMAGE):$(TAG)
 
 .PHONY: docker.push.buildx
-docker.push.buildx:
+docker.push.buildx: docker.init-tag
 	@$(DOCKER_BUILDX) inspect $(DOCKER_BUILDX_INSTANCE) > /dev/null 2>&1 || $(DOCKER_BUILDX) create --name=$(DOCKER_BUILDX_INSTANCE) --driver docker-container
 	@$(DOCKER_BUILDX) build \
 	  --platform=$(DOCKER_BUILDX_PLATFORM) \
@@ -36,7 +36,7 @@ ACT_JOB = docker-push
 
 .PHONY: gha.docker-push
 gha.docker-push: gha.init-docker_password
-	@which act > /dev/null 2>&1 || brew install nektos/tap/act
+	@which act > /dev/null 2>&1 || brew install act
 	@act \
 		--platform=$(ACT_PLATFORM) \
 		--job=$(ACT_JOB) \
